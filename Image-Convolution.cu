@@ -38,7 +38,7 @@ __global__ void 1Dconv(int *outputArray, int *inputArray, int kernel[3], int len
 __global__ void 2Dconv(int *outputImage, int *inputImage, int kernel[3][3], int width, int height)
 {
 	int i, j, pixel;
-	__shared__ int shared_image[TILE_WIDTH+2][TILE_WIDTH+2]
+	__shared__ int shared_image[TILE_WIDTH+2][TILE_WIDTH+2];
 	int x = threadIdx.x + blockIdx.x * blockDim.x;
 	int y = threadIdx.y + blockIdx.y * blockDim.y;
 
