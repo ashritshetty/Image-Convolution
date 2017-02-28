@@ -37,15 +37,40 @@ __global__ void 1Dconv(int *outputArray, int *inputArray, int kernel[3], int len
 
 __global__ void 2Dconv(int *outputImage, int *inputImage, int kernel[3][3], int width, int height)
 {
+	int i, j, pixel;
 	__shared__ int shared_image[TILE_WIDTH+2][TILE_WIDTH+2]
 	int x = threadIdx.x + blockIdx.x * blockDim.x;
 	int y = threadIdx.y + blockIdx.y * blockDim.y;
 
-	if (x < width && y < height)
+	if(blockIdx.x == 0)
+		shared_image[0][y+1] = 0;
+	else
+		shared_image[0][y+1] = inputImage[x-1][y+1];
+	if(blockIdx.y == 0)
+		shared_image[x+1][0] = 0;
+	else
+		shared_image[x+1][0] = inputImage[x+1][y-1];
+	if(blockIdx.x == gridDim.x-1)
+		shared_image[TILE_WIDTH+1][y+1] = 0;
+	else
+		shared_image[TILE_WIDTH+1][y+1] = inputImage[x+1][y+1];
+	if(blockIdx.y == gridDim.y-1)
+		shared_image[x+1][TILE_WIDTH+1] = 0;
+	else
+		shared_image[x+1][TILE_WIDTH+1] = inputImage[x+1][y+1];
+
+	shared_image[x+1][y+1] = inputImage[x][y];
+	__syncthreads();
+
+	pixel = 0;
+	for(i = -1; i < 2; i++)
 	{
-		int offset = y * width + x;
-		outputImage[offset] = emax(inputImage[offset] - 75, 0);
+		for(j = -1; j < 2; j++)
+		{
+			pixel = pixel + shared_image[x+i][y+j]*kernel[i+1][j+1];
+		}
 	}
+	outputImage[x][y] = pixel/9;
 }
 
 void do_1D_conv(char **argv, int kernel1D[3][3])
@@ -75,7 +100,7 @@ void do_1D_conv(char **argv, int kernel1D[3][3])
 	free(hostOutput);
 }
 
-void do_2D_conv(char **argv, int kernel2D[9][9])
+void do_2D_conv(char **argv, int kernel2D[3][9])
 {
 	int imageWidth, imageHeight, img_size, i, j, k;
 	int *hostInput, *hostOutput;
@@ -123,12 +148,12 @@ int main (int argc, char **argv)
 
 	if(atoi(argv[1]) == 0)
 	{
-		kernel1D[3][3] = {};
+		kernel1D[3][3] = {1,1,1,0,0,0,1,0,1};
 		do_1D_conv(argv, kernel1D);
 	}
 	else
 	{
-		kernel2D[9][9] = {};
+		kernel2D[3][9] = {-9,-9,-9,-9,72,-9,-9,-9,-9,0,-9,0,-9,45,-9,0,-9,0,1,1,1,1,1,1,1,1,1};
 		do_2D_conv(argv, kernel2D);
 	}
 
