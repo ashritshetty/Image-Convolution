@@ -97,9 +97,9 @@ __global__ void 2Dconv(int *outputImage, int *inputImage, int arg, int width, in
 		outputImage[x][y] = pixel/9;
 }
 
-void do_1D_conv(char **argv, int *kernel1D)
+void do_1D_conv(char **argv)
 {
-  int arrayLength, arg, i;
+  int arrayLength, arg;
 	int *hostInput, *hostOutput;
 	int *deviceInput, *deviceOutput;
 
@@ -121,7 +121,7 @@ void do_1D_conv(char **argv, int *kernel1D)
 
 void do_2D_conv(char **argv)
 {
-	int imageWidth, imageHeight, img_size, arg, i, j, k;
+	int imageWidth, imageHeight, img_size, arg;
 	int *hostInput, *hostOutput;
 	int *deviceInput, *deviceOutput;
 
