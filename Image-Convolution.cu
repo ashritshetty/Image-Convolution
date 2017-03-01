@@ -10,7 +10,7 @@
 #define TILE_WIDTH 16
 #define BLOCKSIZE 256
 
-__global__ void 1Dconv(int *outputArray, int *inputArray, int kernel[3], int length)
+__global__ void 1Dconv(int *outputArray, int *inputArray, int *kernel, int length)
 {
 	__shared__ int shared_array[BLOCKSIZE+2];
 	int x = threadIdx.x + blockIdx.x * blockDim.x;
@@ -35,7 +35,7 @@ __global__ void 1Dconv(int *outputArray, int *inputArray, int kernel[3], int len
 	outputArray[x] = (shared_array[x]*kernel[0]) + (shared_array[x+1]*kernel[1]) + (shared_array[x+2]*kernel[2]);
 }
 
-__global__ void 2Dconv(int *outputImage, int *inputImage, int kernel[3][3], int width, int height)
+__global__ void 2Dconv(int *outputImage, int *inputImage, int *kernel, int width, int height)
 {
 	int i, j, pixel;
 	__shared__ int shared_image[TILE_WIDTH+2][TILE_WIDTH+2];
@@ -70,10 +70,11 @@ __global__ void 2Dconv(int *outputImage, int *inputImage, int kernel[3][3], int 
 			pixel = pixel + shared_image[x+i][y+j]*kernel[i+1][j+1];
 		}
 	}
-	outputImage[x][y] = pixel/9;
+	if(x < width && y < height)
+		outputImage[x][y] = pixel/9;
 }
 
-void do_1D_conv(char **argv, int kernel1D[3][3])
+void do_1D_conv(char **argv, int *kernel1D)
 {
   int arrayLength, i;
 	int *hostInput, *hostOutput;
@@ -100,7 +101,7 @@ void do_1D_conv(char **argv, int kernel1D[3][3])
 	free(hostOutput);
 }
 
-void do_2D_conv(char **argv, int kernel2D[3][9])
+void do_2D_conv(char **argv, int *kernel2D)
 {
 	int imageWidth, imageHeight, img_size, i, j, k;
 	int *hostInput, *hostOutput;
