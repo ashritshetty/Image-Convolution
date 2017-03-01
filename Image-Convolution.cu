@@ -110,7 +110,7 @@ void do_1D_conv(char **argv)
 	cudaMalloc((void **)&deviceOutput, arrayLength * sizeof(int));
 	cudaMemcpy(deviceInput, hostInput, arrayLength * sizeof(int), cudaMemcpyHostToDevice);
 	dim3 dimGrid(ceil(arrayLength / BLOCKSIZE), 1, 1);
-	dim3 dimBlock((BLOCKSIZE), 1, 1);
+	dim3 dimBlock(BLOCKSIZE, 1, 1);
 	1Dconv <<< dimGrid, dimBlock >>> (deviceOutput, deviceInput, arg, arrayLength);
 	cudaMemcpy(hostOutput, deviceOutput, arrayLength * sizeof(int), cudaMemcpyDeviceToHost);
 	write_image_template<int>(argv[4], hostOutput, arrayLength);
