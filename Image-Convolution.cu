@@ -55,7 +55,7 @@ __global__ void 2Dconv(int *outputImage, int *inputImage, int arg, int width, in
 	int y = threadIdx.y + blockIdx.y * blockDim.y;
 	int kernel[3][3];
 
-	int k = 0;
+	k = 0;
 	for(i = 0; i < 3; i++)
 	{
 		for(j = 0; j < 3; j++)
@@ -109,7 +109,7 @@ void do_1D_conv(char **argv)
 	cudaMalloc((void **)&deviceInput, arrayLength * sizeof(int));
 	cudaMalloc((void **)&deviceOutput, arrayLength * sizeof(int));
 	cudaMemcpy(deviceInput, hostInput, arrayLength * sizeof(int), cudaMemcpyHostToDevice);
-	dim3 dimGrid(ceil(arrayLength / BLOCKSIZE, 1, 1);
+	dim3 dimGrid(ceil(arrayLength / BLOCKSIZE), 1, 1);
 	dim3 dimBlock((BLOCKSIZE), 1, 1);
 	1Dconv <<< dimGrid, dimBlock >>> (deviceOutput, deviceInput, arg, arrayLength);
 	cudaMemcpy(hostOutput, deviceOutput, arrayLength * sizeof(int), cudaMemcpyDeviceToHost);
