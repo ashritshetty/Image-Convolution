@@ -28,13 +28,13 @@ int main (int argc, char **argv)
   {
     KERNEL_DIM = 3;
     kernel = (int *)malloc(KERNEL_DIM * KERNEL_DIM * sizeof(int));
-    kernel[9] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
+    kernel[] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
   }
   else
   {
     KERNEL_DIM = 5;
     kernel = (int *)malloc(KERNEL_DIM * KERNEL_DIM * sizeof(int));
-    kernel[25] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
+    kernel[] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
   }
 
   if(rank == 0)
