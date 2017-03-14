@@ -41,10 +41,10 @@ void read_image_template(char *name, int **image, int *im_width, int *im_height)
 {
 	unsigned char *temp_img;
 	read_image(name, &temp_img, im_width, im_height);
-  (*image) = (T*)malloc(sizeof(T)*(*im_width)*(*im_height));
+  (*image) = (int*)malloc(sizeof(int)*(*im_width)*(*im_height));
 	for(int i=0;i<(*im_width)*(*im_height);i++)
 	{
-		(*image)[i]=(T)temp_img[i];
+		(*image)[i]=(int)temp_img[i];
 	}
 	free(temp_img);
 }
