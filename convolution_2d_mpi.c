@@ -11,6 +11,9 @@ int main (int argc, char **argv)
   int ELE_PER_PROC, ELE_PER_SCRA, KERNEL_DIM;
   int *hostInputImage, *hostOutputImage, *hostPartInImage, *hostScratchImage, *hostPartOutImage, *kernel;
 
+  int kernel_sharp[9] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
+  int kernel_smooth[25] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
+
   if (argc != 4)
   {
     printf("Usage    : ./convolution_2d_mpi <input> <output> <kernel>\n");
@@ -27,14 +30,12 @@ int main (int argc, char **argv)
   if(kernelType == 0)
   {
     KERNEL_DIM = 3;
-    kernel = (int *)malloc(KERNEL_DIM * KERNEL_DIM * sizeof(int));
-    kernel[] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
+    kernel = &kernel_sharp[0];
   }
   else
   {
     KERNEL_DIM = 5;
-    kernel = (int *)malloc(KERNEL_DIM * KERNEL_DIM * sizeof(int));
-    kernel[] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
+    kernel = &kernel_smooth[0];
   }
 
   if(rank == 0)
