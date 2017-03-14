@@ -39,10 +39,11 @@ void read_image(char *name, unsigned char **image, int *im_width, int *im_height
 //template<class T>
 void read_image_template(char *name, int **image, int *im_width, int *im_height)
 {
+	int i;
 	unsigned char *temp_img;
 	read_image(name, &temp_img, im_width, im_height);
   (*image) = (int*)malloc(sizeof(int)*(*im_width)*(*im_height));
-	for(int i=0;i<(*im_width)*(*im_height);i++)
+	for(i=0;i<(*im_width)*(*im_height);i++)
 	{
 		(*image)[i]=(int)temp_img[i];
 	}
@@ -62,8 +63,9 @@ void write_image(char *name, unsigned char *image, int im_width, int im_height)
 //template<class T>
 void write_image_template(char *name, int *image, int im_width, int im_height)
 {
+	int i;
 	unsigned char *temp_img=(unsigned char*)malloc(sizeof(unsigned char)*im_width*im_height);
-	for(int i=0;i<(im_width*im_height);i++)
+	for(i=0;i<(im_width*im_height);i++)
 	{
 		temp_img[i]=(unsigned char)image[i];
 	}
