@@ -36,7 +36,7 @@ void read_image(char *name, unsigned char **image, int *im_width, int *im_height
 	fclose(fip);
 }
 
-template<class T>
+//template<class T>
 void read_image_template(char *name, T **image, int *im_width, int *im_height)
 {
 	unsigned char *temp_img;
@@ -59,7 +59,7 @@ void write_image(char *name, unsigned char *image, int im_width, int im_height)
 	fclose(fop);
 }
 
-template<class T>
+//template<class T>
 void write_image_template(char *name, T *image, int im_width, int im_height)
 {
 	unsigned char *temp_img=(unsigned char*)malloc(sizeof(unsigned char)*im_width*im_height);

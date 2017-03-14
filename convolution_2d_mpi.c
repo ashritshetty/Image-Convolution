@@ -9,7 +9,7 @@ int main (int argc, char **argv)
 {
   int rank, size, imageWidth, imageHeight, kernelType, pixel, i, j, k, l, x, y;
   int ELE_PER_PROC, ELE_PER_SCRA, KERNEL_DIM;
-  int *hostInputImage, *hostOutputImage, *hostPartInImage, *hostPartOutImage, *kernel;
+  int *hostInputImage, *hostOutputImage, *hostPartInImage, *hostScratchImage, *hostPartOutImage, *kernel;
 
   if (argc != 4)
   {
@@ -28,18 +28,18 @@ int main (int argc, char **argv)
   {
     KERNEL_DIM = 3;
     kernel = (int *)malloc(KERNEL_DIM * KERNEL_DIM * sizeof(int));
-    kernel[] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
+    kernel[9] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
   }
   else
   {
     KERNEL_DIM = 5;
     kernel = (int *)malloc(KERNEL_DIM * KERNEL_DIM * sizeof(int));
-    kernel[] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
+    kernel[25] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
   }
 
   if(rank == 0)
   {
-    read_image_template<int>(argv[1], &hostInputImage, &imageWidth, &imageHeight);
+    read_image_template(argv[1], &hostInputImage, &imageWidth, &imageHeight);
     MPI_Send(&imageWidth, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
     MPI_Send(&imageHeight, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
     hostOutputImage = (int *)malloc(imageWidth * imageHeight * sizeof(int));
@@ -63,7 +63,7 @@ int main (int argc, char **argv)
   }
   for(i = 0; i < imageHeight/size; i++){
     for(j = 0; j < imageWidth; j++){
-      hostScratchImage[((i+(KERNEL_DIM/2)*(imageWidth+KERNEL_DIM-1))+((KERNEL_DIM/2)+j)] = hostInputImage[(i*(imageWidth-1))+j];
+      hostScratchImage[(i+(KERNEL_DIM/2)*(imageWidth+KERNEL_DIM-1))+((KERNEL_DIM/2)+j)] = hostInputImage[(i*(imageWidth-1))+j];
     }
   }
   for(i = 0; i < 2; i++){
@@ -100,7 +100,7 @@ int main (int argc, char **argv)
   free(hostPartOutImage);
   if(rank == 0)
   {
-    write_image_template<int>(argv[2], hostOutputImage, imageWidth, imageHeight);
+    write_image_template(argv[2], hostOutputImage, imageWidth, imageHeight);
     free(hostInputImage);
     free(hostOutputImage);
   }
