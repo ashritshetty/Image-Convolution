@@ -7,7 +7,7 @@
 
 int main (int argc, char **argv)
 {
-  int rank, size, imageWidth, imageHeight, kernelType, pixel, i, j, k, l, x, y;
+  int rank, size, imageWidth, imageHeight, kernelType, pixel, i, j, k, l, x, y, rowIndex, colIndex;
   int ELE_PER_PROC, ELE_PER_SCRA, KERNEL_DIM;
   int *hostInputImage, *hostOutputImage, *hostPartInImage, *hostScratchImage, *hostPartOutImage, *kernel;
 
@@ -58,6 +58,7 @@ int main (int argc, char **argv)
   hostPartOutImage = (int *)malloc(ELE_PER_PROC * sizeof(int));
 
   MPI_Scatter(hostInputImage, ELE_PER_PROC, MPI_INT, hostPartInImage, ELE_PER_PROC, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
 
   for(i = 0; i < sizeof(hostScratchImage)/sizeof(int); i++){
     hostScratchImage[i] = 0;
@@ -78,23 +79,46 @@ int main (int argc, char **argv)
     }
   }
 
-  for(i = 0; i < imageWidth-1+(KERNEL_DIM/2); i++){
-    for(j = 0; j < imageHeight-1+(KERNEL_DIM/2); j++){
-      pixel = 0;
-      x = i;
-      for(k = 0; k < KERNEL_DIM; k++){
-        y = j;
-        for(l = 0; l < KERNEL_DIM; l++){
-          pixel = pixel + (kernel[k*KERNEL_DIM+l] * hostScratchImage[x*(imageWidth+KERNEL_DIM)+y]);
-          y++;
+  if(rank == 0)
+  {
+    for(i=0; i < (imageHeight/size)+KERNEL_DIM-1; i++)
+    {
+        for(j=0; j < imageWidth+KERNEL_DIM-1; j++)
+        {
+          printf("%d ", hostScratchImage[i*(imageWidth+KERNEL_DIM-1)+j]);
         }
-        x++;
-      }
-      hostPartOutImage[i*imageWidth+j] = pixel;
+        printf("\n");
     }
   }
 
+  for(i=0; i < (imageHeight/size)+KERNEL_DIM-1; i++)
+  {
+      for(j=0; j < imageWidth+KERNEL_DIM-1; j++)
+      {
+          pixel = 0;
+          for(k=0; k < KERNEL_DIM; k++)
+          {
+              x = KERNEL_DIM - 1 - k;
+
+              for(l=0; l < KERNEL_DIM; l++)
+              {
+                  y = KERNEL_DIM - 1 - l;
+
+                  rowIndex = i + k - (KERNEL_DIM/2);
+                  colIndex = j + l - (KERNEL_DIM/2);
+
+                  if(rowIndex >= 0 && rowIndex < (imageHeight/size)+KERNEL_DIM-1 && colIndex >= 0 && colIndex < imageWidth+KERNEL_DIM-1)
+                      pixel += hostScratchImage[(imageWidth+KERNEL_DIM-1) * rowIndex + colIndex] * kernel[KERNEL_DIM * x + y];
+              }
+          }
+          hostPartOutImage[imageWidth * i + j] = pixel;
+      }
+  }
+
+  MPI_Barrier(MPI_COMM_WORLD);
   MPI_Gather(hostPartOutImage, ELE_PER_PROC, MPI_INT, hostOutputImage, ELE_PER_PROC, MPI_INT, 0, MPI_COMM_WORLD);
+
+  MPI_Barrier(MPI_COMM_WORLD);
 
   free(hostPartInImage);
   free(hostScratchImage);
