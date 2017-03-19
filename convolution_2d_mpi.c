@@ -64,7 +64,7 @@ int main (int argc, char **argv)
   }
   for(i = 0; i < imageHeight/size; i++){
     for(j = 0; j < imageWidth; j++){
-      hostScratchImage[(i+(KERNEL_DIM/2)*(imageWidth+KERNEL_DIM-1))+((KERNEL_DIM/2)+j)] = hostInputImage[(i*(imageWidth-1))+j];
+      hostScratchImage[(i+(KERNEL_DIM/2)*(imageWidth+KERNEL_DIM-1))+((KERNEL_DIM/2)+j)] = hostPartInImage[(i*(imageWidth-1))+j];
     }
   }
   for(i = 0; i < 2; i++){
