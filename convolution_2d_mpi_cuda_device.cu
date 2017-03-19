@@ -64,7 +64,7 @@ __global__ void conv2d(int *outputImage, int *inputImage, int width, int height,
   }
 }
 
-void compute_gpu(int *hostPartInImage, int *hostPartOutImage, int imageWidth, int imageHeight, int arg)
+void compute_gpu(int *hostInputImage, int *hostOutputImage, int imageWidth, int imageHeight, int arg)
 {
   int img_size;
   int *deviceInputImage, *deviceOutputImage;
