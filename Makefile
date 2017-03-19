@@ -1,11 +1,11 @@
-all: convolution_2d_mpi_cuda_host.o convolution_2d_mpi_cuda_device.o
-	mpicc -o convolution_2d_mpi_cuda convolution_2d_mpi_cuda_host.o -L /software/cuda-toolkit/8.0.44/lib64 -lcudart convolution_2d_mpi_cuda_device.o
+all: example_mpi_cuda.o example_kernel.o
+	mpic++ -o example_mpi_cuda example_kernel.o -L /software/cuda-toolkit/8.0.44/lib64 -lcudart example_mpi_cuda.o
 
-convolution_2d_mpi_cuda.o: convolution_2d_mpi_cuda_host.c
-	mpicc -c convolution_2d_mpi_cuda_host.c
+example_mpi_cuda.o: example_mpi_cuda.cpp
+	mpic++ -c example_mpi_cuda.cpp
 
-convolution_2d_mpi_cuda.o: convolution_2d_mpi_cuda_device.cu
-	nvcc --ptxas-options=-v -c convolution_2d_mpi_cuda_device.cu
+example_kernel.o: example_kernel.cu
+	nvcc --ptxas-options=-v -c example_kernel.cu
 
 clean:
-	rm -rf *.o convolution_2d_mpi_cuda
+	rm -rf *.o example_mpi_cuda
