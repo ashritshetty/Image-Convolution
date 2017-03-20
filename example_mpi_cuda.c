@@ -48,54 +48,13 @@ int main (int argc, char **argv)
   hostPartOutImage = (int *)malloc(ELE_PER_PROC * sizeof(int));
 
   MPI_Scatter(hostInputImage, ELE_PER_PROC, MPI_INT, hostPartInImage, ELE_PER_PROC, MPI_INT, 0, MPI_COMM_WORLD);
-
-  int i,j;
-/*  if(rank == 0)
-  {
-    for(i = 0; i < imageHeight/size; i++)
-    {
-      for(j = 0; j < imageWidth; j++)
-      {
-        printf("%d ", hostInputImage[i*imageWidth + j]);
-      }
-      printf("\n");
-    }	
-  } */
-
+   
   compute_gpu(hostPartInImage, hostPartOutImage, imageWidth, (imageHeight/size), kernelType);
 
   MPI_Barrier(MPI_COMM_WORLD);
 
-/*  if(rank == 0)
-  {
-    for(i = 0; i < imageHeight/size; i++)
-    {
-      for(j = 0; j < imageWidth; j++)
-      {
-        printf("%d ", hostPartOutImage[i*imageWidth + j]);
-      }
-      printf("\n");
-    }	
-  }
-
-
-*/
   MPI_Gather(hostPartOutImage, ELE_PER_PROC, MPI_INT, hostOutputImage, ELE_PER_PROC, MPI_INT, 0, MPI_COMM_WORLD);
-
-/*    if(rank == 0)
-  {
-    for(i = 0; i < imageHeight; i++)
-    {
-      for(j = 0; j < imageWidth; j++)
-      {
-        printf("%d ", hostOutputImage[i*imageWidth + j]);
-      }
-      printf("\n");
-    }	
-  }
-*/
-
-
+     
   free(hostPartInImage);
   free(hostPartOutImage);
   
