@@ -10,6 +10,7 @@ int main (int argc, char **argv)
   int rank, size, imageWidth, imageHeight, scratchWidth, scratchHeight, kernelType, pixel, i, j, k, l, x, y, rowIndex, colIndex;
   int ELE_PER_PROC, ELE_PER_SCRA, KERNEL_DIM, KERNEL_RADIUS, DIVIDE;
   int *hostInputImage, *hostOutputImage, *hostPartInImage, *hostScratchImage, *hostPartOutImage, *kernel;
+  double t1, t2, t3, t4;
 
   int kernel_sharp[9] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
   int kernel_smooth[25] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
@@ -26,6 +27,9 @@ int main (int argc, char **argv)
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   kernelType = atoi(argv[3]);
+
+  if(rank == 0)
+    t1 = MPI_Wtime();
 
   if(kernelType == 0)
   {
@@ -45,8 +49,11 @@ int main (int argc, char **argv)
   if(rank == 0)
   {
     read_image_template(argv[1], &hostInputImage, &imageWidth, &imageHeight);
-    MPI_Send(&imageWidth, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-    MPI_Send(&imageHeight, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+    for(i = 1; i < size; i++)
+    {
+      MPI_Send(&imageWidth, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+      MPI_Send(&imageHeight, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+    }
     hostOutputImage = (int *)malloc(imageWidth * imageHeight * sizeof(int));
   }
   else
@@ -65,6 +72,9 @@ int main (int argc, char **argv)
 
   MPI_Scatter(hostInputImage, ELE_PER_PROC, MPI_INT, hostPartInImage, ELE_PER_PROC, MPI_INT, 0, MPI_COMM_WORLD);
   MPI_Barrier(MPI_COMM_WORLD);
+
+  if(rank == 0)
+    t2 = MPI_Wtime();
 
   for(i = 0; i < ELE_PER_SCRA; i++){
     hostScratchImage[i] = 0;
@@ -112,21 +122,11 @@ int main (int argc, char **argv)
       }
   }
 
-  if(rank == 0)
-{
-  for(i = 0; i < (imageHeight/size); i++)
-  {
-    for(j = 0; j < imageWidth; j++)
-    {
-      printf("%d ", hostPartOutImage[i * imageWidth + j]);
-    }
-    printf("\n");
-  }
- }
-
-
-
   MPI_Barrier(MPI_COMM_WORLD);
+
+  if(rank == 0)
+    t3 = MPI_Wtime();
+
   MPI_Gather(hostPartOutImage, ELE_PER_PROC, MPI_INT, hostOutputImage, ELE_PER_PROC, MPI_INT, 0, MPI_COMM_WORLD);
 
   MPI_Barrier(MPI_COMM_WORLD);
@@ -139,6 +139,13 @@ int main (int argc, char **argv)
     write_image_template(argv[2], hostOutputImage, imageWidth, imageHeight);
     free(hostInputImage);
     free(hostOutputImage);
+  }
+ 
+  if(rank == 0)
+  {  
+    t4 = MPI_Wtime();
+    printf("%f ", (t2-t1)+(t4-t3));
+    printf("%f\n", (t3-t2));
   }
 
   MPI_Finalize();

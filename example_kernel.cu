@@ -29,9 +29,9 @@ __global__ void conv2d(int *outputImage, int *inputImage, int width, int height,
     }
   }
 
-  printf("inside kernel\n");
-  shared_image[(x%TILE_WIDTH)+1][(y%TILE_WIDTH)+1] = inputImage[x*width+y];
+  shared_image[(x%TILE_WIDTH)+1][(y%TILE_WIDTH)+1] = inputImage[y*width+x];
   __syncthreads();
+
 
   if(x%TILE_WIDTH == 0)
     shared_image[0][(y%TILE_WIDTH+1)] = shared_image[1][(y%TILE_WIDTH)+1];
@@ -65,7 +65,7 @@ __global__ void conv2d(int *outputImage, int *inputImage, int width, int height,
   }
   if(x < width && y < height)
   {
-    outputImage[x*width+y] = pixel/9;
+    outputImage[y*width+x] = abs(pixel)/9;
   }
 }
 
@@ -74,14 +74,12 @@ extern "C" void compute_gpu(int *hostInputImage, int *hostOutputImage, int image
   int img_size;
   int *deviceInputImage, *deviceOutputImage;
 
-
   img_size = imageWidth * imageHeight * sizeof(int);
   cudaMalloc((void **)&deviceInputImage, img_size);
   cudaMalloc((void **)&deviceOutputImage, img_size);
   cudaMemcpy(deviceInputImage, hostInputImage, img_size, cudaMemcpyHostToDevice);
   dim3 dimGrid(ceil(imageWidth / TILE_WIDTH), ceil(imageHeight / TILE_WIDTH), 1);
   dim3 dimBlock(TILE_WIDTH, TILE_WIDTH, 1);
-  printf("Calling kernel\n");
   conv2d <<< dimGrid, dimBlock >>>(deviceOutputImage, deviceInputImage, imageWidth, imageHeight, arg);
   cudaMemcpy(hostOutputImage, deviceOutputImage, img_size, cudaMemcpyDeviceToHost);
   cudaFree(deviceInputImage);
