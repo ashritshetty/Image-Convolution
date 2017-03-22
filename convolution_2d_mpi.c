@@ -101,7 +101,7 @@ int main (int argc, char **argv)
                   y = KERNEL_DIM - 1 - l;
                   rowIndex = i + k - (KERNEL_DIM/2);
                   colIndex = j + l - (KERNEL_DIM/2);
-                  //if(rowIndex >= 0 && rowIndex < (imageHeight/size)+KERNEL_DIM-1 && colIndex >= 0 && colIndex < imageWidth+KERNEL_DIM-1)
+                  if(rowIndex >= 0 && rowIndex < (imageHeight/size)+KERNEL_DIM-2 && colIndex >= 0 && colIndex < imageWidth+KERNEL_DIM-2)
                       pixel += hostScratchImage[(imageWidth+KERNEL_DIM-1) * rowIndex + colIndex] * kernel[KERNEL_DIM * x + y];
               }
           }
