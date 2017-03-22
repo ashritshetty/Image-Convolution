@@ -14,11 +14,14 @@ int main (int argc, char **argv)
 
   int kernel_sharp[9] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
   int kernel_smooth[25] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
-
-  if (argc != 4){
-    printf("Usage    : ./convolution_2d_mpi <input> <output> <kernel>\n");
-    printf("<kernel> : 0 - SHARP\n         : 1 - SMOOTH\n");
-    exit(1);
+ 
+  if(rank == 0)
+  {	  
+    if (argc != 4){
+      printf("Usage    : mpirun -n <num. procs> ./convolution_2d_mpi <input> <output> <kernel>\n");
+      printf("<kernel> : 0 - SHARP\n         : 1 - SMOOTH\n");
+      exit(1);
+    }
   }
 
   MPI_Init(&argc, &argv);
