@@ -20,7 +20,6 @@ __global__ void conv2d3(int *outputImage, int *inputImage, int width, int height
   shared_image[(x%TILE_WIDTH)+1][(y%TILE_WIDTH)+1] = inputImage[y*width+x];
   __syncthreads();
 
-
   if(x%TILE_WIDTH == 0)
     shared_image[0][(y%TILE_WIDTH+1)] = shared_image[1][(y%TILE_WIDTH)+1];
 
@@ -34,8 +33,7 @@ __global__ void conv2d3(int *outputImage, int *inputImage, int width, int height
     shared_image[(x%TILE_WIDTH)+1][SH_MEM_WIDTH_3-1] = shared_image[(x%TILE_WIDTH)+1][SH_MEM_WIDTH_3-2];
   __syncthreads();
 
-  if((x%TILE_WIDTH)+(y%TILE_WIDTH) == 0)
-  {
+  if((x%TILE_WIDTH)+(y%TILE_WIDTH) == 0){
     shared_image[0][0] = shared_image[1][1];
     shared_image[SH_MEM_WIDTH_3-1][SH_MEM_WIDTH_3-1] = shared_image[SH_MEM_WIDTH_3-2][SH_MEM_WIDTH_3-2];
     shared_image[0][SH_MEM_WIDTH_3-1] = shared_image[1][SH_MEM_WIDTH_3-2];
@@ -44,15 +42,12 @@ __global__ void conv2d3(int *outputImage, int *inputImage, int width, int height
   __syncthreads();
 
   pixel = 0;
-  for(i = 0; i < 3; i++)
-  {
-    for(j = 0; j < 3; j++)
-    {
+  for(i = 0; i < 3; i++){
+    for(j = 0; j < 3; j++){
       pixel = pixel + shared_image[(x%TILE_WIDTH)+i][(y%TILE_WIDTH)+j]*kernel[i][j];
     }
   }
-  if(x < width && y < height)
-  {
+  if(x < width && y < height){
     outputImage[y*width+x] = abs(pixel);
   }
 }
@@ -90,8 +85,7 @@ __global__ void conv2d5(int *outputImage, int *inputImage, int width, int height
   }
   __syncthreads();
 
-  if((x%TILE_WIDTH)+(y%TILE_WIDTH) == 0)
-  {
+  if((x%TILE_WIDTH)+(y%TILE_WIDTH) == 0){
     shared_image[0][0] = shared_image[2][2];
     shared_image[1][1] = shared_image[2][2];
     shared_image[SH_MEM_WIDTH_5-1][SH_MEM_WIDTH_5-1] = shared_image[SH_MEM_WIDTH_5-3][SH_MEM_WIDTH_5-3];
@@ -104,15 +98,12 @@ __global__ void conv2d5(int *outputImage, int *inputImage, int width, int height
   __syncthreads();
 
   pixel = 0;
-  for(i = 0; i < 5; i++)
-  {
-    for(j = 0; j < 5; j++)
-    {
+  for(i = 0; i < 5; i++){
+    for(j = 0; j < 5; j++){
       pixel = pixel + shared_image[(x%TILE_WIDTH)+i][(y%TILE_WIDTH)+j]*kernel[i][j];
     }
   }
-  if(x < width && y < height)
-  {
+  if(x < width && y < height){
     outputImage[y*width+x] = abs(pixel)/80;
   }
 }
