@@ -72,7 +72,6 @@ int main (int argc, char **argv)
 
   if(rank == 0){
     t4 = MPI_Wtime();
-    //printf("%f\n", t4-t1);
     printf("GPU Time %f\n", t3-t2);
     printf("MPI Time %f\n", (t4-t1)-(t3-t2));
     printf("Total Time %f\n", t4-t1);
