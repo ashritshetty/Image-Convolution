@@ -126,8 +126,9 @@ int main (int argc, char **argv)
  
   if(rank == 0){  
     t4 = MPI_Wtime();
-    printf("%f ", (t2-t1)+(t4-t3));
-    printf("%f\n", (t3-t2));
+    printf("Communication Overhead %f ", (t2-t1)+(t4-t3));
+    printf("Kernel Time %f\n", (t3-t2));
+    printf("Total Time %f\n", (t4-t1));
   }
 
   MPI_Finalize();
