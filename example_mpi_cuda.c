@@ -19,7 +19,7 @@ int main (int argc, char **argv)
 
   if(rank == 0){
     if (argc != 4){
-      printf("Usage    : ./convolution_2d_mpi <input> <output> <kernel>\n");
+      printf("Usage    : ./example_mpi_cuda <input> <output> <kernel>\n");
       printf("<kernel> : 0 - SHARP\n         : 1 - SMOOTH\n");
       exit(1);
     }
