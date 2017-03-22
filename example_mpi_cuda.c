@@ -17,10 +17,8 @@ int main (int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  if(rank == 0)
-  {
-    if (argc != 4)
-    {
+  if(rank == 0){
+    if (argc != 4){
       printf("Usage    : ./convolution_2d_mpi <input> <output> <kernel>\n");
       printf("<kernel> : 0 - SHARP\n         : 1 - SMOOTH\n");
       exit(1);
@@ -32,18 +30,15 @@ int main (int argc, char **argv)
   if(rank == 0)
     t1 = MPI_Wtime();
 
-  if(rank == 0)
-  {
+  if(rank == 0){
     read_image_template(argv[1], &hostInputImage, &imageWidth, &imageHeight);
-    for(i = 1; i < size; i++)
-    {
+    for(i = 1; i < size; i++){
       MPI_Send(&imageWidth, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
       MPI_Send(&imageHeight, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
     }
     hostOutputImage = (int *)malloc(imageWidth * imageHeight * sizeof(int));
   }
-  else
-  {
+  else{
     MPI_Recv(&imageWidth, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(&imageHeight, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   }
@@ -69,19 +64,18 @@ int main (int argc, char **argv)
   free(hostPartInImage);
   free(hostPartOutImage);
   
-  if(rank == 0)
-  {
+  if(rank == 0){
     write_image_template(argv[2], hostOutputImage, imageWidth, imageHeight);
     free(hostInputImage);
     free(hostOutputImage);
   }
 
-  if(rank == 0)
-  {
+  if(rank == 0){
     t4 = MPI_Wtime();
     //printf("%f\n", t4-t1);
-    printf("%f ", t3-t2);
-    printf("%f\n", (t4-t1)-(t3-t2));
+    printf("GPU Time %f\n", t3-t2);
+    printf("MPI Time %f\n", (t4-t1)-(t3-t2));
+    printf("Total Time %f\n", t4-t1);
   }
 
   MPI_Finalize();
