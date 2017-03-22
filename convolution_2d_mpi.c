@@ -15,8 +15,7 @@ int main (int argc, char **argv)
   int kernel_sharp[9] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
   int kernel_smooth[25] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
 
-  if (argc != 4)
-  {
+  if (argc != 4){
     printf("Usage    : ./convolution_2d_mpi <input> <output> <kernel>\n");
     printf("<kernel> : 0 - SHARP\n         : 1 - SMOOTH\n");
     exit(1);
@@ -31,33 +30,28 @@ int main (int argc, char **argv)
   if(rank == 0)
     t1 = MPI_Wtime();
 
-  if(kernelType == 0)
-  {
+  if(kernelType == 0){
     KERNEL_DIM = 3;
     KERNEL_RADIUS = 1;
     DIVIDE = 1;
     kernel = &kernel_sharp[0];
   }
-  else
-  {
+  else{
     KERNEL_DIM = 5;
     KERNEL_RADIUS = 2;
     DIVIDE = 80;
     kernel = &kernel_smooth[0];
   }
 
-  if(rank == 0)
-  {
+  if(rank == 0){
     read_image_template(argv[1], &hostInputImage, &imageWidth, &imageHeight);
-    for(i = 1; i < size; i++)
-    {
+    for(i = 1; i < size; i++){
       MPI_Send(&imageWidth, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
       MPI_Send(&imageHeight, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
     }
     hostOutputImage = (int *)malloc(imageWidth * imageHeight * sizeof(int));
   }
-  else
-  {
+  else{
     MPI_Recv(&imageWidth, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(&imageHeight, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   }
@@ -84,7 +78,6 @@ int main (int argc, char **argv)
       hostScratchImage[((i+KERNEL_RADIUS)*scratchWidth)+(KERNEL_RADIUS+j)] = hostPartInImage[(i*imageWidth)+j];
     }
   }
-
   for(i = 0; i < KERNEL_RADIUS; i++){
     for(j = KERNEL_RADIUS; j < imageWidth+KERNEL_RADIUS; j++){
       hostScratchImage[(i*scratchWidth)+j] = hostScratchImage[((i+KERNEL_RADIUS)*scratchWidth)+j];
@@ -96,28 +89,19 @@ int main (int argc, char **argv)
     }
   }
  
-  for(i=0; i < (imageHeight/size); i++)
-  {
-      for(j=0; j < imageWidth; j++)
-      {
+  for(i=0; i < (imageHeight/size); i++){
+      for(j=0; j < imageWidth; j++){
           pixel = 0;
-          for(k=0; k < KERNEL_DIM; k++)
-          {
+          for(k=0; k < KERNEL_DIM; k++){
               x = KERNEL_DIM - 1 - k;
-
-              for(l=0; l < KERNEL_DIM; l++)
-              {
+              for(l=0; l < KERNEL_DIM; l++){
                   y = KERNEL_DIM - 1 - l;
-
                   rowIndex = i + k - (KERNEL_DIM/2);
                   colIndex = j + l - (KERNEL_DIM/2);
-
-                  //printf("%d %d\n", rowIndex, colIndex);
                   //if(rowIndex >= 0 && rowIndex < (imageHeight/size)+KERNEL_DIM-1 && colIndex >= 0 && colIndex < imageWidth+KERNEL_DIM-1)
                       pixel += hostScratchImage[(imageWidth+KERNEL_DIM-1) * rowIndex + colIndex] * kernel[KERNEL_DIM * x + y];
               }
           }
-	  //printf("i %d j %d\n", i, j);
           hostPartOutImage[imageWidth * i + j] = abs(pixel)/DIVIDE;
       }
   }
@@ -128,21 +112,19 @@ int main (int argc, char **argv)
     t3 = MPI_Wtime();
 
   MPI_Gather(hostPartOutImage, ELE_PER_PROC, MPI_INT, hostOutputImage, ELE_PER_PROC, MPI_INT, 0, MPI_COMM_WORLD);
-
   MPI_Barrier(MPI_COMM_WORLD);
 
   free(hostPartInImage);
   free(hostScratchImage);
   free(hostPartOutImage);
-  if(rank == 0)
-  {
+	
+  if(rank == 0){
     write_image_template(argv[2], hostOutputImage, imageWidth, imageHeight);
     free(hostInputImage);
     free(hostOutputImage);
   }
  
-  if(rank == 0)
-  {  
+  if(rank == 0){  
     t4 = MPI_Wtime();
     printf("%f ", (t2-t1)+(t4-t3));
     printf("%f\n", (t3-t2));
