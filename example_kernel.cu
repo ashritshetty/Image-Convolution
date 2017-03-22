@@ -11,7 +11,7 @@ extern "C" {
 
 __global__ void conv2d3(int *outputImage, int *inputImage, int width, int height, int arg)
 {
-  int i, j, k, pixel;
+  int i, j, pixel;
   __shared__ int shared_image[SH_MEM_WIDTH_3][SH_MEM_WIDTH_3];
   int kernel[3][3] = {-1,-1,-1,-1, 9,-1,-1,-1,-1};
   int x = threadIdx.x + blockIdx.x * blockDim.x;
@@ -59,7 +59,7 @@ __global__ void conv2d3(int *outputImage, int *inputImage, int width, int height
 
 __global__ void conv2d5(int *outputImage, int *inputImage, int width, int height, int arg)
 {
-  int i, j, k, pixel;
+  int i, j, pixel;
   __shared__ int shared_image[SH_MEM_WIDTH_5][SH_MEM_WIDTH_5];
   int kernel[5][5] = {0,1,2,1,0,1,4,8,4,1,2,8,16,8,2,1,4,8,4,1,0,1,2,1,0};
   int x = threadIdx.x + blockIdx.x * blockDim.x;
