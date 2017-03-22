@@ -13,7 +13,7 @@ __global__ void conv2d(int *outputImage, int *inputImage, int width, int height,
 {
   int i, j, k, pixel;
   __shared__ int shared_image[SH_MEM_WIDTH][SH_MEM_WIDTH];
-  int kernel2D[3][9] = {-9,-9,-9,-9,72,-9,-9,-9,-9,9,-9,-9,-9,81,-9,-9,-9,-9,-9,-9,0,-9,0,9,0,9,9};
+  int kernel2D[3][9] = {-9,-9,-9,-9,72,-9,-9,-9,-9,-9,-9,-9,-9,81,-9,-9,-9,-9,-9,-9,0,-9,0,9,0,9,9};
   int x = threadIdx.x + blockIdx.x * blockDim.x;
   int y = threadIdx.y + blockIdx.y * blockDim.y;
   int kernel[3][3];
