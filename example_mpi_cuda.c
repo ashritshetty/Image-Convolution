@@ -19,7 +19,7 @@ int main (int argc, char **argv)
 
   if(rank == 0){
     if (argc != 4){
-      printf("Usage    : ./example_mpi_cuda <input> <output> <kernel>\n");
+      printf("Usage    : mpirun -n <num. procs> ./example_mpi_cuda <input> <output> <kernel>\n");
       printf("<kernel> : 0 - SHARP\n         : 1 - SMOOTH\n");
       exit(1);
     }
